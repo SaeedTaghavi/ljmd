@@ -8,28 +8,28 @@
 
 #include "mdsys.hpp"
 
-// Structure initialization
-void mdsys_init(Mdsys& sys, string filename) 
+Mdsys::Mdsys(std::string filename)
 {
     // Supporting filenames
-    string restart_file, trajectory_file, energy_file;
+    std::string restart_file, trajectory_file, energy_file;
 
     // Output print frequency
     int print_freq;
 
     // Read parameters from file
-    ifstream file {filename};
+    std::ifstream file {filename};
 
     if (!file)
     {
-        throw runtime_error("Error opening the initial file! \n");
+        throw std::runtime_error("Error opening the initial file! \n");
     }
-    
-    string line;
-    string delimiter = " ";
-    string token;
 
-    array<string, 12> options;
+    std::string line;
+    std::string delimiter = " ";
+    std::string token;
+
+    // Fills vector with options
+    std::array<std::string, 12> options;
     int index {0};
     while (getline(file, line) && index < 12) 
     {
@@ -39,78 +39,74 @@ void mdsys_init(Mdsys& sys, string filename)
     }
 
     // Configure atributes with the parameters
-    from_chars(options[0].data(), options[0].data() + options[0].size(), sys.natoms);
-    from_chars(options[9].data(), options[9].data() + options[9].size(), sys.nsteps);
-    sys.mass = stod(options[1]);
-    sys.epsilon = stod(options[2]);
-    sys.sigma = stod(options[3]);
-    sys.rcut = stod(options[4]);
-    sys.box = stod(options[5]);
-    sys.dt = stod(options[10]); 
+    natoms = stoi(options[0]);
+    nsteps = stoi(options[9]);
+    mass = stod(options[1]);
+    epsilon = stod(options[2]);
+    sigma = stod(options[3]);
+    rcut = stod(options[4]);
+    box = stod(options[5]);
+    dt = stod(options[10]); 
 
     // Supporting files
-    restart_file = options[6];
+    restart_file = "data/" + options[6];
     trajectory_file = options[7];
     energy_file = options[8];
 
     // Print frequency
-    from_chars(options[11].data(), options[11].data() + options[11].size(), print_freq);
+    print_freq = stoi(options[11]);
 
     // Reserve memory for all vectors
-    sys.rx.reserve(sys.natoms);
-    sys.ry.reserve(sys.natoms);
-    sys.rz.reserve(sys.natoms);
-    sys.vx.reserve(sys.natoms);
-    sys.vy.reserve(sys.natoms);
-    sys.vz.reserve(sys.natoms);
-    sys.fx.reserve(sys.natoms);
-    sys.fy.reserve(sys.natoms);
-    sys.fz.reserve(sys.natoms);
+    rx.reserve(natoms);
+    ry.reserve(natoms);
+    rz.reserve(natoms);
+    vx.reserve(natoms);
+    vy.reserve(natoms);
+    vz.reserve(natoms);
+    fx.reserve(natoms);
+    fy.reserve(natoms);
+    fz.reserve(natoms);
 
     // Initialize force vector elements as zero
-    fill(sys.rx.begin(), sys.fx.end(), 0.0);
-    fill(sys.ry.begin(), sys.fx.end(), 0.0);
-    fill(sys.rz.begin(), sys.fx.end(), 0.0);
-    fill(sys.vx.begin(), sys.fx.end(), 0.0);
-    fill(sys.vy.begin(), sys.fx.end(), 0.0);
-    fill(sys.vz.begin(), sys.fx.end(), 0.0);
-    fill(sys.fx.begin(), sys.fx.end(), 0.0);
-    fill(sys.fy.begin(), sys.fx.end(), 0.0);
-    fill(sys.fz.begin(), sys.fx.end(), 0.0);
+    fill(fx.begin(), fx.end(), 0.0);
+    fill(fy.begin(), fy.end(), 0.0);
+    fill(fz.begin(), fz.end(), 0.0);
+
+    // Initialize nfi as zero
+    nfi = 0;
 
     // Read position and velocity from file
-    ifstream res_file {restart_file};
+    std::ifstream res_file {restart_file};
 
     if (!res_file)
     {
-        throw runtime_error("Error opening the restart file! \n");
+        throw std::runtime_error("Error opening the restart file! \n");
     }
 
     int n_line {0};
     double col1, col2, col3;
-    cout << n_line << '\n';
     while (getline(res_file, line)) 
     {
-        istringstream ss(line);
-        cout << line << '\n';
-        if (n_line < sys.natoms)
+        std::istringstream ss(line);
+        if (n_line < natoms)
         {
             ss >> col1 >> col2 >> col3;
-            cout << n_line << '\n';
-            sys.rx.at(n_line) = col1;
-            sys.ry.at(n_line) = col2;
-            sys.rz.at(n_line) = col3;
+            rx.push_back(col1);
+            ry.push_back(col2);
+            rz.push_back(col3);
         }
         else
         {
             ss >> col1 >> col2 >> col3;
-            cout << n_line << '\n';
-            sys.vx.at(n_line - sys.natoms) = col1;
-            sys.vy.at(n_line - sys.natoms) = col2;
-            sys.vz.at(n_line - sys.natoms) = col3;
+            vx.push_back(col1);
+            vy.push_back(col2);
+            vz.push_back(col3);
         }
         ++n_line;
     }
+}
 
-    
+Mdsys::~Mdsys()
+{
+    std::cout << "Deleted the system!" << '\n';
 }
