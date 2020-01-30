@@ -10,7 +10,7 @@
 #include <string>
 #include <array>
 #include <vector>
-#include <charconv>
+#include <cmath>
 #include <sstream>
 #include <iostream>
 
@@ -25,21 +25,28 @@ const double MVSQ2E {2390.05736153349};
 class Mdsys
 {
 private:
-    int natoms, nfi, nsteps;
+    int nfi;
     double dt, mass, epsilon, sigma, box, rcut;
-    double ekin, epot, temp;
+    double kin_en, pot_en, temp;
     std::vector<double> rx, ry, rz, vx, vy, vz, fx, fy, fz;
+
+public:
+    std::string trajectory_file, energy_file;
+    int n_atoms, n_steps;
+
 public:
     Mdsys(std::string filename);
 
     ~Mdsys();
 
     // Calculates the kinectic energy of the system
-    //void kin_en();
+    void calculate_kin_en();
 
     // Calculates the forces on the system
-    // void forces();
+    void calculate_forces();
 
     // Calculates the velocity verlet
-    // void vel_verlet();
+    void calculate_vel_verlet();
 };
+
+double pbc_helper(double x, const double boxby2);
