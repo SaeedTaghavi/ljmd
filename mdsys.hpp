@@ -25,14 +25,13 @@ const double MVSQ2E {2390.05736153349};
 class Mdsys
 {
 private:
-    int nfi;
     double dt, mass, epsilon, sigma, box, rcut;
     double kin_en, pot_en, temp;
     std::vector<double> rx, ry, rz, vx, vy, vz, fx, fy, fz;
 
 public:
     std::string trajectory_file, energy_file;
-    int n_atoms, n_steps;
+    int nfi, n_atoms, n_steps, print_freq;
 
 public:
     Mdsys(std::string filename);
@@ -47,6 +46,9 @@ public:
 
     // Calculates the velocity verlet
     void calculate_vel_verlet();
+
+    // Prints and writes the results to files
+    void output_helper(std::ofstream& energy_file, std::ofstream& trajectory_file);
 };
 
 double pbc_helper(double x, const double boxby2);

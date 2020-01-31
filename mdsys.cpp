@@ -13,9 +13,6 @@ Mdsys::Mdsys(std::string filename)
     // Supporting filenames
     std::string restart_file;
 
-    // Output print frequency
-    int print_freq;
-
     // Read parameters from file
     std::ifstream file {filename};
 
@@ -183,6 +180,17 @@ void Mdsys::calculate_vel_verlet()
         vy[i] += 0.5 * dt / MVSQ2E * fy[i] / mass;
         vz[i] += 0.5 * dt / MVSQ2E * fz[i] / mass;
     }   
+}
+
+void Mdsys::output_helper(std::ofstream& energy_file, std::ofstream& trajectory_file)
+{
+    std::cout << "     " << nfi << "            " << temp << "            " << kin_en << "            " << pot_en << "            " << kin_en + pot_en << '\n';
+    energy_file << "     " << nfi << "            " << temp << "            " << kin_en << "            " << pot_en << "            " << kin_en + pot_en << '\n';
+    trajectory_file << n_atoms << '\n' << "nfi = " << nfi << " etot = " << kin_en + pot_en << '\n';
+    for (int i = 0; i < n_atoms; i++)
+    {
+        trajectory_file << "Ar " << rx[i] << "     " << ry[i] << "     " << rz[i] << '\n';
+    } 
 }
 
 double pbc_helper(double x, const double boxby2)

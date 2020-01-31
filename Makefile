@@ -3,9 +3,8 @@
 CC=g++
 #OPENMP=-fopenmp
 OPENMP=
-CFLAGS= -O0 -Wall -W -g -std=c++17 $(OPENMP)
-# -march=native causes regressions?
-#CFLAGS=-O3 -std=c++17 -march=native -ffast-math -fexpensive-optimizations -ftree-vectorize $(OPENMP)
+CFLAGS= -O0 -Wall -W -g $(OPENMP)
+#CFLAGS=-O3 -march=native -ffast-math -fexpensive-optimizations -ftree-vectorize $(OPENMP)
 ################
 
 # $@ is the name of the file being generated (ljmd)
